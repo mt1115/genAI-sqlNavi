@@ -491,6 +491,36 @@ function renderHeading(level: number, text: string, key: string) {
   );
 }
 
+function isInlineSummaryHeading(text: string) {
+  const normalized = text.trim();
+  return normalized === "制約" || normalized === "注意点" || normalized === "外部キー";
+}
+
+function renderInlineSummaryContent(block: Extract<FormattedBlock, { type: "paragraph" | "list" }>) {
+  if (block.type === "paragraph") {
+    return (
+      <div className="formattedInlineSummaryText">
+        {block.lines
+          .map((line) => line.trim())
+          .filter(Boolean)
+          .map((line, lineIndex) => (
+            <span className="formattedLine" key={`${line}-${lineIndex}`}>
+              {renderInlineMarkdown(line)}
+            </span>
+          ))}
+      </div>
+    );
+  }
+
+  return (
+    <ul className="formattedInlineSummaryList">
+      {block.items.map((item, itemIndex) => (
+        <li key={`${item}-${itemIndex}`}>{renderInlineMarkdown(item)}</li>
+      ))}
+    </ul>
+  );
+}
+
 function FormattedContent({ value, placeholder }: { value: string; placeholder?: string }) {
   const blocks = parseFormattedBlocks(value);
 
@@ -502,9 +532,34 @@ function FormattedContent({ value, placeholder }: { value: string; placeholder?:
     <div className="formattedContent">
       {blocks.map((rawBlock, blockIndex) => {
         const block = rawBlock.type === "table" ? normalizeDisplayTable(rawBlock) : rawBlock;
+        const nextRawBlock = blocks[blockIndex + 1];
+        const nextBlock = nextRawBlock?.type === "table" ? normalizeDisplayTable(nextRawBlock) : nextRawBlock;
+        const prevRawBlock = blocks[blockIndex - 1];
+        const prevBlock = prevRawBlock?.type === "table" ? normalizeDisplayTable(prevRawBlock) : prevRawBlock;
         const key = `${block.type}-${blockIndex}`;
 
+        if (
+          (block.type === "paragraph" || block.type === "list") &&
+          prevBlock?.type === "heading" &&
+          isInlineSummaryHeading(prevBlock.text)
+        ) {
+          return null;
+        }
+
         if (block.type === "heading") {
+          if (
+            isInlineSummaryHeading(block.text) &&
+            nextBlock &&
+            (nextBlock.type === "paragraph" || nextBlock.type === "list")
+          ) {
+            return (
+              <div className="formattedInlineSummaryRow" key={key}>
+                <span className="formattedInlineSummaryHeading">{renderInlineMarkdown(block.text)}</span>
+                {renderInlineSummaryContent(nextBlock)}
+              </div>
+            );
+          }
+
           return renderHeading(block.level, block.text, key);
         }
 
@@ -916,7 +971,7 @@ export default function Home() {
               role="tab"
               type="button"
             >
-              SQL作成
+              SQL生成
             </button>
             <button
               aria-selected={activeTab === "sql-review"}
@@ -1014,7 +1069,7 @@ export default function Home() {
             <section className="surface surfaceFullHeight">
               <div className="surfaceHeader">
                 <div>
-                  <h3>SQL作成</h3>
+                  <h3>SQL生成</h3>
                   <p>{selectedProjectInfo.name} プロジェクト内のテーブルについてSQLを生成します。</p>
                 </div>
                 <HelpTooltip
@@ -1134,7 +1189,15 @@ export default function Home() {
 
         {activeTab === "table" ? (
           <div className="tableStackLayout">
-            <section className="surface tableSummarySurface tableHalfSurface">
+            <section
+              className={
+                tableName
+                  ? tableMessages.length > 0
+                    ? "surface tableAnalysisSurface tableAnalysisSurfaceExpanded"
+                    : "surface tableAnalysisSurface tableAnalysisSurfaceInitial"
+                  : "surface tableAnalysisSurface tableAnalysisSurfaceCompact"
+              }
+            >
               <SearchableSelect
                 disabled={tableOptionsLoading || tableOptions.length === 0}
                 emptyText={tableOptionsLoading ? "対象テーブルを取得中..." : "対象テーブルが見つかりません"}
@@ -1154,94 +1217,97 @@ export default function Home() {
               {tableOptionsError ? <p className="errorText">{tableOptionsError}</p> : null}
               {tableSummaryLoading ? <p className="statusText">要約を生成中...</p> : null}
 
-              <div className="summaryBlock summaryScrollArea">
-                <div className="summaryCopyButton">
-                  <CopyButton label="テーブル要約" value={tableSummary} />
-                </div>
-                <div className="summaryContentScroll">
-                  <FormattedContent
-                    placeholder="対象テーブルを選択すると、ここに要約を表示します。"
-                    value={tableSummary}
-                  />
-                </div>
-              </div>
-            </section>
-
-            <section className="surface chatSurface chatSurfaceFixed tableHalfSurface">
-              <div className="surfaceHeader compactSurfaceHeader">
-                <div>
-                  <h3>テーブル解析チャット</h3>
-                </div>
-              </div>
-              <div
-                className={
-                  tableMessages.length === 0
-                    ? "chatThread markdownChatThread markdownChatThreadEmpty"
-                    : "chatThread markdownChatThread"
-                }
-              >
-                {tableMessages.length === 0 ? (
-                  <div className="chatEmpty">
-                    <p>質問履歴はまだありません。</p>
-                    <p>テーブルを選択してから質問してください。</p>
-                    <div className="chatEmptyExamples">
-                      {tableQuestionExamples.map((example) => (
-                        <button
-                          className="chatEmptyExampleButton"
-                          key={example}
-                          onClick={() => setTableRequest(example)}
-                          type="button"
-                        >
-                          {example}
-                        </button>
-                      ))}
+              {tableName ? (
+                <>
+                  <div className="summaryBlock summaryScrollArea">
+                    <div className="summaryCopyButton">
+                      <CopyButton label="テーブル要約" value={tableSummary} />
+                    </div>
+                    <div className="summaryContentScroll">
+                      <FormattedContent value={tableSummary} />
                     </div>
                   </div>
-                ) : (
-                  tableMessages.map((message) => (
-                    <div
-                      className={message.role === "user" ? "chatBubble userBubble" : "chatBubble assistantBubble"}
-                      key={message.id}
-                    >
-                      {message.role === "user" ? (
-                        <p className="userMessageText">{message.content}</p>
-                      ) : (
-                        <FormattedContent value={message.content} />
-                      )}
-                    </div>
-                  ))
-                )}
-              </div>
 
-              <div className="chatComposer fixedComposer">
-                <div className="chatInputShell">
-                  <textarea
-                    disabled={!tableName}
-                    onChange={(event) => setTableRequest(event.target.value)}
-                    onKeyDown={(event) => {
-                      if (event.key === "Enter" && !event.shiftKey) {
-                        event.preventDefault();
-                        void runTableQuestion();
+                  {tableSummary && !tableSummaryLoading ? (
+                    <div
+                      className={
+                        tableMessages.length > 0
+                          ? "tableAnalysisChatSection tableAnalysisChatSectionExpanded"
+                          : "tableAnalysisChatSection tableAnalysisChatSectionCompact"
                       }
-                    }}
-                    placeholder={
-                      tableName
-                        ? "このテーブルについて質問してください"
-                        : "先にテーブルを選択してください"
-                    }
-                    value={tableRequest}
-                  />
-                  <button
-                    aria-label="質問を送信"
-                    className="sendButton"
-                    disabled={tableQuestionLoading || !tableRequest.trim() || !tableName}
-                    onClick={() => void runTableQuestion()}
-                    type="button"
-                  >
-                    <SendGlyph />
-                  </button>
-                </div>
-              </div>
+                    >
+                      <div className="surfaceHeader compactSurfaceHeader">
+                        <div>
+                          <h3>テーブル解析チャット</h3>
+                        </div>
+                      </div>
+                      <div
+                        className={
+                          tableMessages.length === 0
+                            ? "chatThread markdownChatThread markdownChatThreadEmpty"
+                            : "chatThread markdownChatThread"
+                        }
+                      >
+                        {tableMessages.length === 0 ? (
+                          <div className="chatEmpty">
+                            <div className="chatEmptyExamples">
+                              {tableQuestionExamples.map((example) => (
+                                <button
+                                  className="chatEmptyExampleButton"
+                                  key={example}
+                                  onClick={() => setTableRequest(example)}
+                                  type="button"
+                                >
+                                  {example}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+                        ) : (
+                          tableMessages.map((message) => (
+                            <div
+                              className={message.role === "user" ? "chatBubble userBubble" : "chatBubble assistantBubble"}
+                              key={message.id}
+                            >
+                              {message.role === "user" ? (
+                                <p className="userMessageText">{message.content}</p>
+                              ) : (
+                                <FormattedContent value={message.content} />
+                              )}
+                            </div>
+                          ))
+                        )}
+                      </div>
+
+                      <div className="chatComposer fixedComposer">
+                        <div className="chatInputShell">
+                          <textarea
+                            disabled={!tableName}
+                            onChange={(event) => setTableRequest(event.target.value)}
+                            onKeyDown={(event) => {
+                              if (event.key === "Enter" && !event.shiftKey) {
+                                event.preventDefault();
+                                void runTableQuestion();
+                              }
+                            }}
+                            placeholder="このテーブルについて質問してください"
+                            value={tableRequest}
+                          />
+                          <button
+                            aria-label="質問を送信"
+                            className="sendButton"
+                            disabled={tableQuestionLoading || !tableRequest.trim() || !tableName}
+                            onClick={() => void runTableQuestion()}
+                            type="button"
+                          >
+                            <SendGlyph />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  ) : null}
+                </>
+              ) : null}
             </section>
           </div>
         ) : null}

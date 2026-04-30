@@ -610,19 +610,9 @@ textarea {
 }
 
 .tableStackLayout {
-  display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: minmax(0, 68vh) minmax(0, 68vh);
-  gap: 18px;
-  height: auto;
-  min-height: 136vh;
+  display: block;
+  min-height: 0;
   padding-bottom: 0;
-}
-
-.tableHalfSurface {
-  min-height: 68vh;
-  height: 68vh;
-  overflow: hidden;
 }
 
 .field {
@@ -823,6 +813,42 @@ textarea:focus {
   font-weight: 800;
 }
 
+.formattedInlineSummaryRow {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.65;
+}
+
+.formattedInlineSummaryHeading {
+  flex: 0 0 64px;
+  font-weight: 800;
+  color: var(--foreground);
+  white-space: nowrap;
+}
+
+.formattedInlineSummaryText {
+  flex: 1;
+  min-width: 0;
+  color: var(--foreground);
+}
+
+.formattedInlineSummaryList {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 6px;
+}
+
+.formattedInlineSummaryList li {
+  font-size: 13px;
+  line-height: 1.6;
+}
+
 .formattedEmpty {
   color: var(--muted);
   font-size: 13px;
@@ -1004,6 +1030,12 @@ textarea:focus {
   overflow: hidden;
 }
 
+.tableAnalysisSurface .summaryBlock {
+  flex: 0 0 auto;
+  height: 46vh;
+  min-height: 46vh;
+}
+
 .summaryScrollArea {
   display: flex;
   flex-direction: column;
@@ -1035,13 +1067,27 @@ textarea:focus {
   background: #fff;
 }
 
-.tableSummarySurface {
+.tableAnalysisSurface {
   display: flex;
   flex-direction: column;
-  height: 100%;
-  min-height: 0;
+  gap: 14px;
   min-width: 0;
-  overflow: hidden;
+  min-height: auto;
+}
+
+.tableAnalysisSurfaceCompact {
+  min-height: auto;
+  height: auto;
+  padding-top: 16px;
+  padding-bottom: 12px;
+}
+
+.tableAnalysisSurfaceInitial {
+  min-height: auto;
+}
+
+.tableAnalysisSurfaceExpanded {
+  min-height: 116vh;
 }
 
 .summaryContentScroll {
@@ -1071,17 +1117,25 @@ textarea:focus {
   line-height: 1.5;
 }
 
-.chatSurface {
+.tableAnalysisChatSection {
   display: flex;
   flex-direction: column;
+  flex: 1;
   min-height: 0;
+  margin-top: 6px;
 }
 
-.chatSurfaceFixed {
-  height: 100%;
-  min-height: 0;
-  min-width: 0;
+.tableAnalysisChatSectionCompact {
+  flex: 0 0 auto;
+  height: 25vh;
+  min-height: 25vh;
   overflow: hidden;
+}
+
+.tableAnalysisChatSectionExpanded {
+  flex: 0 0 auto;
+  height: auto;
+  min-height: 22vh;
 }
 
 .chatThread {
@@ -1104,6 +1158,15 @@ textarea:focus {
   padding-bottom: 40px;
 }
 
+.tableAnalysisChatSectionCompact .markdownChatThreadEmpty {
+  padding-bottom: 8px;
+}
+
+.tableAnalysisChatSectionCompact .chatThread,
+.tableAnalysisChatSectionCompact .markdownChatThread {
+  overflow: hidden;
+}
+
 .chatEmpty {
   display: flex;
   flex: 1;
@@ -1118,20 +1181,21 @@ textarea:focus {
   padding: 24px;
 }
 
-.chatEmpty p {
-  margin: 0;
-}
-
-.chatEmpty p + p {
-  margin-top: 6px;
-}
-
 .chatEmptyExamples {
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 10px;
   margin-top: 18px;
+}
+
+.tableAnalysisChatSectionCompact .chatEmpty {
+  justify-content: flex-start;
+  padding-top: 16px;
+}
+
+.tableAnalysisChatSectionCompact .chatEmptyExamples {
+  margin-top: 10px;
 }
 
 .chatEmptyExampleButton {
@@ -1205,6 +1269,10 @@ textarea:focus {
   position: sticky;
   bottom: 8px;
   background: transparent;
+}
+
+.tableAnalysisChatSectionCompact .fixedComposer {
+  bottom: 0;
 }
 
 .chatInputShell {
@@ -1302,8 +1370,6 @@ textarea:focus {
 
   .surfaceFullHeight,
   .compactTableLayout,
-  .tableSummarySurface,
-  .chatSurfaceFixed,
   .fixedHeightGrid {
     min-height: auto;
   }
@@ -1333,13 +1399,11 @@ textarea:focus {
   }
 
   .tableStackLayout {
-    grid-template-rows: none;
     min-height: auto;
   }
 
-  .tableHalfSurface {
-    min-height: 60vh;
-    height: 60vh;
+  .tableAnalysisSurface {
+    min-height: auto;
   }
 }
 
