@@ -657,6 +657,19 @@ function CopyButton({ label, value }: { label: string; value: string }) {
   );
 }
 
+function ThinkingIndicator({ label }: { label: string }) {
+  return (
+    <div className="thinkingState" role="status" aria-live="polite">
+      <div className="thinkingDots" aria-hidden="true">
+        <span />
+        <span />
+        <span />
+      </div>
+      <p>{label}</p>
+    </div>
+  );
+}
+
 function ResponsePanel({
   title,
   description,
@@ -664,6 +677,8 @@ function ResponsePanel({
   placeholder,
   copyValue,
   hideCopy = false,
+  loading = false,
+  loadingLabel,
 }: {
   title: string;
   description: string;
@@ -671,6 +686,8 @@ function ResponsePanel({
   placeholder?: string;
   copyValue?: string;
   hideCopy?: boolean;
+  loading?: boolean;
+  loadingLabel?: string;
 }) {
   return (
     <section className="surface outputSurface">
@@ -679,10 +696,14 @@ function ResponsePanel({
           <h3>{title}</h3>
           {description ? <p>{description}</p> : null}
         </div>
-        {!hideCopy ? <CopyButton label={title} value={copyValue ?? value} /> : null}
+        {!hideCopy && !loading ? <CopyButton label={title} value={copyValue ?? value} /> : null}
       </div>
       <div className="responseBox formattedPanel">
-        <FormattedContent placeholder={placeholder ?? "出力結果はここに表示されます。"} value={value} />
+        {loading ? (
+          <ThinkingIndicator label={loadingLabel ?? "回答を生成中です..."} />
+        ) : (
+          <FormattedContent placeholder={placeholder ?? "出力結果はここに表示されます。"} value={value} />
+        )}
       </div>
     </section>
   );
@@ -1122,6 +1143,8 @@ export default function Home() {
               copyValue={sqlResponse}
               description=""
               hideCopy={sqlCreateCopyBlocked}
+              loading={sqlLoading}
+              loadingLabel="SQLを生成しています..."
               title="生成結果"
               value={sqlResponse}
             />
@@ -1183,7 +1206,13 @@ export default function Home() {
               </label>
             </section>
 
-            <ResponsePanel description="" title="解析結果" value={sqlReviewResponse} />
+            <ResponsePanel
+              description=""
+              loading={sqlReviewLoading}
+              loadingLabel="SQLを解析しています..."
+              title="解析結果"
+              value={sqlReviewResponse}
+            />
           </div>
         ) : null}
 
@@ -1215,16 +1244,19 @@ export default function Home() {
                 value={tableName}
               />
               {tableOptionsError ? <p className="errorText">{tableOptionsError}</p> : null}
-              {tableSummaryLoading ? <p className="statusText">要約を生成中...</p> : null}
 
               {tableName ? (
                 <>
                   <div className="summaryBlock summaryScrollArea">
                     <div className="summaryCopyButton">
-                      <CopyButton label="テーブル要約" value={tableSummary} />
+                      {!tableSummaryLoading ? <CopyButton label="テーブル要約" value={tableSummary} /> : null}
                     </div>
                     <div className="summaryContentScroll">
-                      <FormattedContent value={tableSummary} />
+                      {tableSummaryLoading ? (
+                        <ThinkingIndicator label="テーブル要約を生成しています..." />
+                      ) : (
+                        <FormattedContent value={tableSummary} />
+                      )}
                     </div>
                   </div>
 
@@ -1277,6 +1309,11 @@ export default function Home() {
                             </div>
                           ))
                         )}
+                        {tableQuestionLoading ? (
+                          <div className="chatBubble assistantBubble thinkingBubble" aria-live="polite">
+                            <ThinkingIndicator label="回答を生成しています..." />
+                          </div>
+                        ) : null}
                       </div>
 
                       <div className="chatComposer fixedComposer">
