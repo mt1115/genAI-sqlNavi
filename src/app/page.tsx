@@ -1093,24 +1093,24 @@ export default function Home() {
                   <h3>SQL生成</h3>
                   <p>{selectedProjectInfo.name} プロジェクト内のテーブルについてSQLを生成します。</p>
                 </div>
-                <HelpTooltip
-                  note="テーブル名やカラム名は、日本語名でも検索できます。"
-                  examples={[
-                    {
-                      label: "単純なSELECT",
-                      value: "USERテーブルの全件を取得するSELECT文を書いて",
-                    },
-                    {
-                      label: "並び替えあり",
-                      value: "顧客番号と顧客名を顧客番号順で取得するSQLを書いて",
-                    },
-                    {
-                      label: "条件付き検索",
-                      value: "注文テーブルから未発送データだけを取得するSQLを書いて",
-                    },
-                  ]}
-                  onSelect={setSqlRequest}
-                />
+                  <HelpTooltip
+                    note="テーブル名やカラム名は、日本語名でも検索できます。"
+                    examples={[
+                      {
+                        label: "全カラム明示SELECT",
+                        value: "USER_MSTの全カラム名を明示して、全件を取得するSELECT文を書いて",
+                      },
+                      {
+                        label: "条件付き検索",
+                        value: "住所マスタから漢字住所とカナ住所を取得してください。漢字住所が福島県のものを対象にして、上位100件を返すSQLを書いてください。",
+                      },
+                      {
+                        label: "JOINあり",
+                        value: "ファイルマスタとファイルデータテーブルを結合し、取込日が5年1か月以上前のファイルについて、ファイルデータテーブルのデータを取得するSQLを書いてください。",
+                      },
+                    ]}
+                    onSelect={setSqlRequest}
+                  />
               </div>
 
               <label className="field">
@@ -1123,9 +1123,9 @@ export default function Home() {
                         void runSqlGenerate();
                       }
                     }}
-                    placeholder="例: USERテーブルの全件を取得するSELECT文を書いて"
-                    value={sqlRequest}
-                  />
+                      placeholder="例: USER_MSTの全カラム名を明示して全件取得するSQLを書いて"
+                      value={sqlRequest}
+                    />
                   <button
                     aria-label="SQLを生成"
                     className="sendButton inlineSendButton"
