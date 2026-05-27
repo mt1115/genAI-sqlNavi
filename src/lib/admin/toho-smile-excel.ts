@@ -163,7 +163,7 @@ export function parseTohoSmileWorkbook(buffer: Buffer): NormalizedWorkbook {
       : parseDwhWorkbook(workbook);
 
   return {
-    projectId: "toho-smile",
+    projectId: "toho_smile",
     tables,
   };
 }

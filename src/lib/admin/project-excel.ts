@@ -17,27 +17,27 @@ const projectExcelAdapters: Record<string, ProjectExcelAdapter> = {
     parse: parseDefaultWorkbook,
     generateDdl: (mapping) => buildDdlWithComments(mapping.tables),
   },
-  "chugin-smile": {
+  chugin_smile: {
     parse: parseChuginSmileWorkbook,
     generateDdl: (mapping) => buildDdlWithComments(mapping.tables),
   },
-  "chugin-biz": {
+  chugin_biz: {
     parse: parseChuginBizWorkbook,
     generateDdl: (mapping) => buildDdlWithComments(mapping.tables),
   },
-  "hokuyo-smile": {
+  hokuyo_smile: {
     parse: parseHokuyoSmileWorkbook,
     generateDdl: (mapping) => buildDdlWithComments(mapping.tables),
   },
-  "hokuyo-biz": {
+  hokuyo_biz: {
     parse: parseHokuyoBizWorkbook,
     generateDdl: (mapping) => buildDdlWithComments(mapping.tables),
   },
-  "toho-biz": {
+  toho_biz: {
     parse: parseTohoBizWorkbook,
     generateDdl: (mapping) => buildDdlWithComments(mapping.tables),
   },
-  "toho-smile": {
+  toho_smile: {
     parse: parseTohoSmileWorkbook,
     generateDdl: (mapping) => buildDdlWithComments(mapping.tables),
   },

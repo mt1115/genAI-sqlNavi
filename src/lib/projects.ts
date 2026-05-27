@@ -7,37 +7,37 @@ export type ProjectConfig = {
 
 export const PROJECTS: ProjectConfig[] = [
   {
-    id: "chugin-smile",
+    id: "chugin_smile",
     name: "中銀Smile",
     description: "",
     kbFile: "chugin_smile.txt",
   },
   {
-    id: "chugin-biz",
+    id: "chugin_biz",
     name: "中銀BizAssist",
     description: "",
     kbFile: "chugin_biz.txt",
   },
   {
-    id: "toho-smile",
+    id: "toho_smile",
     name: "東邦Smile",
     description: "",
     kbFile: "toho_smile.txt",
   },
   {
-    id: "toho-biz",
+    id: "toho_biz",
     name: "東邦BizAssist",
     description: "",
     kbFile: "toho_biz.txt",
   },
   {
-    id: "hokuyo-smile",
+    id: "hokuyo_smile",
     name: "北洋Smile",
     description: "",
     kbFile: "hokuyo_smile.txt",
   },
   {
-    id: "hokuyo-biz",
+    id: "hokuyo_biz",
     name: "北洋BizAssist",
     description: "",
     kbFile: "hokuyo_biz.txt",

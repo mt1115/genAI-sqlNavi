@@ -182,7 +182,7 @@ export function parseChuginBizWorkbook(buffer: Buffer): NormalizedWorkbook {
   }
 
   return {
-    projectId: "chugin-biz",
+    projectId: "chugin_biz",
     tables,
   };
 }

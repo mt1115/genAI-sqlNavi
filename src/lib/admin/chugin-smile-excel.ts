@@ -174,7 +174,7 @@ export function parseChuginSmileWorkbook(buffer: Buffer): NormalizedWorkbook {
   }
 
   return {
-    projectId: "chugin-smile",
+    projectId: "chugin_smile",
     tables,
   };
 }

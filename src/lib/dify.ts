@@ -279,10 +279,13 @@ export async function listProjectTables(project: {
     metadata: normalizeMetadata(document.doc_metadata),
   }));
 
-  const hasProjectMetadata = withMetadata.some(({ metadata }) => Object.keys(metadata).length > 0);
-  const filteredDocuments = hasProjectMetadata
-    ? withMetadata.filter(({ document, metadata }) => matchesProjectDocument(document, metadata, project))
-    : withMetadata;
+  const filteredDocuments = withMetadata.filter(({ document, metadata }) =>
+    matchesProjectDocument(document, metadata, project),
+  );
+
+  if (filteredDocuments.length === 0) {
+    return [];
+  }
 
   const tablesFromSegments = new Map<string, TableOption>();
 

@@ -230,7 +230,7 @@ export function parseHokuyoSmileWorkbook(buffer: Buffer): NormalizedWorkbook {
   }
 
   return {
-    projectId: "hokuyo-smile",
+    projectId: "hokuyo_smile",
     tables,
   };
 }
