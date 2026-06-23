@@ -350,6 +350,7 @@ export async function runWorkflow(
   inputs: Record<string, unknown>,
   options?: {
     purpose?: "sql" | "table_list" | "sql_review" | "table_summary";
+    user?: string;
   },
 ) {
   const apiKey = getWorkflowApiKey(options?.purpose);
@@ -371,7 +372,7 @@ export async function runWorkflow(
     body: JSON.stringify({
       inputs,
       response_mode: "blocking",
-      user: process.env.DIFY_WORKFLOW_USER ?? "sqlnavi-user",
+      user: options?.user ?? process.env.DIFY_WORKFLOW_USER ?? "sqlnavi-user",
     }),
   });
 
@@ -387,6 +388,7 @@ export async function runChat(params: {
   query: string;
   inputs?: Record<string, unknown>;
   purpose?: "default" | "sql_review" | "table_summary";
+  user?: string;
 }) {
   const apiKey =
     params.purpose === "sql_review"
@@ -411,7 +413,7 @@ export async function runChat(params: {
       query: params.query,
       inputs: params.inputs ?? {},
       response_mode: "blocking",
-      user: process.env.DIFY_CHAT_USER ?? "sqlnavi-user",
+      user: params.user ?? process.env.DIFY_CHAT_USER ?? "sqlnavi-user",
     }),
   });
 

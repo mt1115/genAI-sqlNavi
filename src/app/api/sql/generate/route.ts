@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { runWorkflow } from "@/lib/dify";
+import { getDifyUserFromAuthCookie } from "@/lib/auth";
 import { getProjectConfig } from "@/lib/projects";
 
 type Body = {
@@ -27,15 +28,21 @@ export async function POST(request: Request) {
     }
 
     const project = getProjectConfig(body.projectId);
+    const difyUser = await getDifyUserFromAuthCookie();
 
-    const outputs = await runWorkflow({
-      project_id: project.id,
-      project_name: project.name,
-      kb_file: project.kbFile,
-      // Keep both keys for compatibility with different workflow input schemas.
-      request: body.prompt,
-      user_instruction: body.prompt,
-    });
+    const outputs = await runWorkflow(
+      {
+        project_id: project.id,
+        project_name: project.name,
+        kb_file: project.kbFile,
+        // Keep both keys for compatibility with different workflow input schemas.
+        request: body.prompt,
+        user_instruction: body.prompt,
+      },
+      {
+        user: difyUser,
+      },
+    );
 
     return NextResponse.json({
       sql: extractSql(outputs),

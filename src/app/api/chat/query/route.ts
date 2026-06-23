@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { runChat, runWorkflow } from "@/lib/dify";
+import { getDifyUserFromAuthCookie } from "@/lib/auth";
 import { getProjectConfig } from "@/lib/projects";
 
 type Body = {
@@ -17,6 +18,7 @@ export async function POST(request: Request) {
     }
 
     const project = getProjectConfig(body.projectId);
+    const difyUser = await getDifyUserFromAuthCookie();
 
     if ((body.contextType ?? "table_analysis") === "sql_review") {
       const outputs = await runWorkflow(
@@ -29,6 +31,7 @@ export async function POST(request: Request) {
         },
         {
           purpose: "sql_review",
+          user: difyUser,
         },
       );
 
@@ -54,6 +57,7 @@ export async function POST(request: Request) {
         },
         {
           purpose: "table_summary",
+          user: difyUser,
         },
       );
 
@@ -77,6 +81,7 @@ export async function POST(request: Request) {
         table_name: body.tableName ?? "",
       },
       purpose: "default",
+      user: difyUser,
     });
 
     return NextResponse.json({ answer });
